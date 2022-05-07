@@ -175,8 +175,7 @@ describe("Integration Tests", () => {
       const arrayData = _.take(_.orderBy(data, ["score"], ["desc"]),10);
 
       const response = await supertest(app).get("/recommendations/top/10").send();
-        console.log(response.body.length)
-        console.log(arrayData)
+
       expect(response.body).toEqual(arrayData);
     });
     it("should return a empty array when doesn't exist recommendation", async () => {
