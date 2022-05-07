@@ -204,6 +204,28 @@ describe("Unitary tests", () => {
       expect(spy).toHaveBeenCalledWith(body.id);
     });
   });
+
+  describe("get", () => {
+    it("should call all recommendations with correct params", async () => {
+
+      const spy = jest
+        .spyOn(recommendationRepository, "findAll")
+        .mockResolvedValue([{
+            id: faker.datatype.number(),
+            score: faker.datatype.number(),
+            name: faker.name.findName(),
+            youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+          }]);
+
+      await recommendationService.get();
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+
+
+  });
+
 });
 
 
