@@ -246,8 +246,30 @@ describe("Unitary tests", () => {
       expect(spy).toHaveBeenCalledWith(body.amount);
     });
   });
+
+  describe("getById", () => {
+    it("should call get amount by score with correct params", async () => {
+      const body = {
+        amount: faker.datatype.number(),
+      };
+
+      const spy = jest
+        .spyOn(recommendationRepository, "getAmountByScore")
+        .mockResolvedValue(_.times(10, () => ({
+            id: faker.datatype.number(),
+            score: faker.datatype.number(),
+            name: faker.name.findName(),
+            youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`
+          })
+        ));
+
+      await recommendationService.getTop(body.amount);
+
+      expect(spy).toHaveBeenCalledWith(body.amount);
+    });
+  });
 });
 
 // getRandom,
 // getById: getByIdOrFail - not found,
-// getTop,
+
