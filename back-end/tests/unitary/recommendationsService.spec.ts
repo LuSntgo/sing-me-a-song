@@ -122,10 +122,93 @@ describe("Unitary tests", () => {
       expect(spy).toHaveBeenCalledWith(body.id, "increment");
     });
   });
+
+  describe("downvote", () => {
+    it("should call repository find with correct params", async () => {
+      const body = {
+        id: faker.datatype.number(),
+      };
+
+      const spy = jest
+        .spyOn(recommendationRepository, "find")
+        .mockResolvedValue({
+          id: body.id,
+          score: faker.datatype.number({ min: -4 }),
+          name: faker.name.findName(),
+          youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+        });
+
+      jest.spyOn(recommendationRepository, "updateScore").mockResolvedValue({
+        id: body.id,
+        score: faker.datatype.number(),
+        name: faker.name.findName(),
+        youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+      });
+
+      await recommendationService.downvote(body.id);
+
+      expect(spy).toHaveBeenCalledWith(body.id);
+    });
+
+    it("should call decrement with correct values", async () => {
+      const body = {
+        id: faker.datatype.number(),
+      };
+
+      jest.spyOn(recommendationRepository, "find").mockResolvedValue({
+        id: body.id,
+        score: faker.datatype.number(),
+        name: faker.name.findName(),
+        youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+      });
+
+      const spy = jest
+        .spyOn(recommendationRepository, "updateScore")
+        .mockResolvedValue({
+          id: body.id,
+          score: faker.datatype.number(),
+          name: faker.name.findName(),
+          youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+        });
+
+      await recommendationService.downvote(body.id);
+
+      expect(spy).toHaveBeenCalledWith(body.id, "decrement");
+    });
+
+    it("should call delete when updated score is lowest then -5", async () => {
+      const body = {
+        id: faker.datatype.number(),
+      };
+
+      jest.spyOn(recommendationRepository, "find").mockResolvedValue({
+        id: body.id,
+        score: faker.datatype.number(),
+        name: faker.name.findName(),
+        youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+      });
+
+      jest.spyOn(recommendationRepository, "updateScore").mockResolvedValue({
+        id: body.id,
+        score: -6,
+        name: faker.name.findName(),
+        youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+      });
+
+      const spy = jest
+        .spyOn(recommendationRepository, "remove")
+        .mockResolvedValue(undefined);
+
+      await recommendationService.downvote(body.id);
+
+      expect(spy).toHaveBeenCalledWith(body.id);
+    });
+  });
 });
 
-// downvote,
+
+
 // getRandom,
 // get,
-// getById: getByIdOrFail,
+// getById: getByIdOrFail - not found,
 // getTop,
