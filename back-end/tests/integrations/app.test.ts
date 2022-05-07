@@ -1,10 +1,16 @@
 import { faker } from "@faker-js/faker";
+import _ from "lodash";
 import supertest from "supertest";
 import app from "../../src/app.js";
 import {
   createRecommendation,
   loadRecommendation,
 } from "../factories/recommendationsFactory.js";
+import { cleanDatabase } from "../helpers.js";
+
+beforeEach(async () => {
+  await cleanDatabase();
+});
 
 describe("Integration Tests", () => {
   describe("POST /recommendation", () => {
@@ -51,9 +57,7 @@ describe("Integration Tests", () => {
     });
   });
 
-
   describe("POST /recommendation/:id/downvote", () => {
-
     it("should return success when exist a recommendation", async () => {
       const data = await createRecommendation();
 
@@ -83,20 +87,43 @@ describe("Integration Tests", () => {
       expect(result.score - data.score).toEqual(-1);
     });
 
-    it("should delete the recommendation when score is lowest -5", async () => {
-        const data = await createRecommendation({
-            score: -5
-        });
-  
-        await supertest(app).post(`/recommendations/${data.id}/downvote`).send();
-  
-        const result = await loadRecommendation(data.id);
-        expect(result).toBeNull();
+    it("should delete the recommendation when score is lowest then -5", async () => {
+      const data = await createRecommendation({
+        score: -5,
       });
 
+      await supertest(app).post(`/recommendations/${data.id}/downvote`).send();
+
+      const result = await loadRecommendation(data.id);
+      expect(result).toBeNull();
+    });
   });
 
+  describe("GET /recommendation", () => {
+    it("should return 10 recommendations", async () => {
+      await Promise.all(
+        _.times(15, async () => {
+          await createRecommendation();
+        })
+      );
 
+      const response = await supertest(app).get("/recommendations");
 
+      expect(response.body.length).toBe(10);
+    });
 
+    it("should return the last 10 recommendations", async () => {
+      const data = await Promise.all(
+        _.times(15, async () => {
+          return await createRecommendation();
+        })
+      );
+
+      const arrayData = _.take(_.orderBy(data, ["id"], ['desc']), 10);
+
+      const response = await supertest(app).get("/recommendations");
+
+      expect(response.body).toEqual(arrayData);
+    });
+  });
 });
