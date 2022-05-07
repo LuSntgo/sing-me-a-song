@@ -119,11 +119,30 @@ describe("Integration Tests", () => {
         })
       );
 
-      const arrayData = _.take(_.orderBy(data, ["id"], ['desc']), 10);
+      const arrayData = _.take(_.orderBy(data, ["id"], ["desc"]), 10);
 
       const response = await supertest(app).get("/recommendations");
 
       expect(response.body).toEqual(arrayData);
+    });
+  });
+
+  describe("GET /recommendation/:id", () => {
+    it("should return success when exist a recommendation by id", async () => {
+      const data = await createRecommendation();
+
+      const response = await supertest(app).get(`/recommendations/${data.id}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toMatchObject(data);
+    });
+
+    it("should return empty body when recommendation doesn't exists", async () => {
+      const id = faker.datatype.number({ max: 0 });
+
+      const response = await supertest(app).get(`/recommendations/${id}`);
+
+      expect(response.body).toEqual({});
     });
   });
 });
