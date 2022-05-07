@@ -161,4 +161,29 @@ describe("Integration Tests", () => {
       expect(response.status).toBe(404);
     });
   });
+
+  describe("GET /recommendation/top/:amount", () => {
+    it("should return recommendations ordered by score", async () => {
+      const data = await Promise.all(
+        _.times(15, async () => {
+          return await createRecommendation({
+            score: faker.datatype.number({min: 10})
+          });
+        })
+      );
+
+      const arrayData = _.take(_.orderBy(data, ["score"], ["desc"]),10);
+
+      const response = await supertest(app).get("/recommendations/top/10").send();
+        console.log(response.body.length)
+        console.log(arrayData)
+      expect(response.body).toEqual(arrayData);
+    });
+    it("should return a empty array when doesn't exist recommendation", async () => {
+
+      const response = await supertest(app).get("/recommendations/top").send();
+
+      expect(response.body).toEqual({});
+    });
+  });
 });
