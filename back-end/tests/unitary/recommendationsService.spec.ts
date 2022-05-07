@@ -3,7 +3,7 @@ import { recommendationRepository } from "../../src/repositories/recommendationR
 import { recommendationService } from "../../src/services/recommendationsService";
 import { faker } from "@faker-js/faker";
 import { jest } from "@jest/globals";
-import { conflictError } from "../../src/utils/errorUtils";
+import { conflictError, notFoundError } from "../../src/utils/errorUtils";
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -233,13 +233,14 @@ describe("Unitary tests", () => {
 
       const spy = jest
         .spyOn(recommendationRepository, "getAmountByScore")
-        .mockResolvedValue(_.times(10, () => ({
+        .mockResolvedValue(
+          _.times(10, () => ({
             id: faker.datatype.number(),
             score: faker.datatype.number(),
             name: faker.name.findName(),
-            youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`
-          })
-        ));
+            youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+          }))
+        );
 
       await recommendationService.getTop(body.amount);
 
@@ -248,28 +249,40 @@ describe("Unitary tests", () => {
   });
 
   describe("getById", () => {
-    it("should call get amount by score with correct params", async () => {
+    it("should call find with correct values", async () => {
       const body = {
-        amount: faker.datatype.number(),
+        id: faker.datatype.number(),
       };
 
       const spy = jest
-        .spyOn(recommendationRepository, "getAmountByScore")
-        .mockResolvedValue(_.times(10, () => ({
-            id: faker.datatype.number(),
-            score: faker.datatype.number(),
-            name: faker.name.findName(),
-            youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`
-          })
-        ));
+        .spyOn(recommendationRepository, "find")
+        .mockResolvedValue({
+          id: body.id,
+          score: faker.datatype.number(),
+          name: faker.name.findName(),
+          youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+        });
 
-      await recommendationService.getTop(body.amount);
+      await recommendationService.getById(body.id);
 
-      expect(spy).toHaveBeenCalledWith(body.amount);
+      expect(spy).toHaveBeenCalledWith(body.id);
     });
+
+    it("should throw when doesn't exists a recommendation", async () => {
+        const body = {
+          id: faker.datatype.number(),
+        };
+  
+        const spy = jest
+          .spyOn(recommendationRepository, "find")
+          .mockResolvedValue(undefined);
+  
+         const result = recommendationService.getById(body.id);
+  
+        expect(result).rejects.toBeInstanceOf(notFoundError);
+      });
   });
 });
 
 // getRandom,
 // getById: getByIdOrFail - not found,
-
