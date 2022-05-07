@@ -145,4 +145,20 @@ describe("Integration Tests", () => {
       expect(response.body).toEqual({});
     });
   });
+
+  describe("GET /recommendation/random", () => {
+    it("should return a recommendation", async () => {
+      const data = await createRecommendation();
+
+      const response = await supertest(app).get("/recommendations/random").send();
+
+      expect(response.status).toBe(200);
+    });
+    it("should return no recommendation", async () => {
+
+      const response = await supertest(app).get("/recommendations/random").send();
+
+      expect(response.status).toBe(404);
+    });
+  });
 });
