@@ -1,9 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { CreateRecommendationData } from "../../src/services/recommendationsService.js";
+import { Recommendation } from "@prisma/client";
+import { prisma } from "../../src/database.js";
 
-export default function createRecommendation(): CreateRecommendationData{
-    return {
+export function createRecommendation(): Promise<Recommendation> {
+  return prisma.recommendation.create({
+      data: {
         name: faker.name.findName(),
-        youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`
-    }
+        youtubeLink: `https://www.youtube.com/${faker.datatype.uuid()}`,
+      }
+  });
 }
