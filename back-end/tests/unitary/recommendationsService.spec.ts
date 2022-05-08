@@ -381,7 +381,7 @@ describe("Unitary tests", () => {
       expect(result).rejects.toBeInstanceOf(notFoundError);
     });
 
-    it.only("should return a random recommendation", async () => {
+    it("should return a random recommendation", async () => {
       const recommendations = _.times(10, () => ({
         id: faker.datatype.number(),
         score: faker.datatype.number(),
@@ -406,4 +406,3 @@ describe("Unitary tests", () => {
   });
 });
 
-// getRandom,
