@@ -28,9 +28,26 @@ describe("HomePage", () => {
       cy.get(".GoArrowDown").click({ multiple: true });
     });
   });
+
+
 });
 
+describe("Random page", () => {
+    it("should show only one random recommendation", () => {
+  
+      cy.visit("http://localhost:3000/random");
+      cy.contains('.GoArrowDown').should('have.length', 0)
+    });
+    
+  });
 
-//! RANDOM - Tem que vim uma musica
+  describe("Top page", () => {
+    it("should show only one random recommendation", () => {
+  
+      cy.visit("http://localhost:3000/top");
+      cy.contains('.GoArrowDown').should('have.length', 9)
+    });
+    
+  });
 
 //! TOP - Tem que vim 10 musica
