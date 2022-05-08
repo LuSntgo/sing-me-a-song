@@ -33,21 +33,20 @@ describe("HomePage", () => {
 });
 
 describe("Random page", () => {
-    it("should show only one random recommendation", () => {
+    it.only("should show only one random recommendation", () => {
   
       cy.visit("http://localhost:3000/random");
-      cy.contains('.GoArrowDown').should('have.length', 0)
+      cy.get('iframe').should('have.length', 1)
     });
-    
+
   });
 
   describe("Top page", () => {
-    it("should show only one random recommendation", () => {
+    it("should shows at most 10 recommendations", () => {
   
       cy.visit("http://localhost:3000/top");
-      cy.contains('.GoArrowDown').should('have.length', 9)
+      cy.get('iframe').should('be.length.lte', 10)
     });
     
   });
 
-//! TOP - Tem que vim 10 musica
